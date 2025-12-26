@@ -6,7 +6,7 @@ import { SecurityManager } from '@/utils/security';
 import { SessionService } from '@/lib/sessionService';
 import { HoneypotService } from '@/lib/honeypotService';
 import { cn } from '@/lib/utils';
-import ParticleField from './ParticleField';
+import FalconEye from './FalconEye';
 
 interface SessionCreatorProps {
   onSessionStart: (sessionId: string, isHost: boolean, timerMode: string) => void;
@@ -21,7 +21,7 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
   const [isCopied, setIsCopied] = useState(false);
   const [isWaiting, setIsWaiting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Guard against double-execution
   const isCreatingRef = useRef(false);
 
@@ -29,16 +29,16 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
     // Prevent double execution
     if (isCreatingRef.current || isLoading) return;
     isCreatingRef.current = true;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const newId = generateGhostId();
       const fingerprint = await SecurityManager.generateFingerprint();
-      
+
       const result = await SessionService.reserveSession(newId, fingerprint);
-      
+
       if (!result.success) {
         // Distinguish error types for user
         if (result.errorType === 'NETWORK_ERROR') {
@@ -77,13 +77,13 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
 
   const handleJoinSession = async () => {
     if (isLoading) return;
-    
+
     const trimmedId = joinId.trim().toUpperCase();
-    
+
     // Allow both standard format and honeypot formats
     const isStandardFormat = isValidGhostId(trimmedId);
     const isHoneypotFormat = HoneypotService.hasHoneypotPrefix(trimmedId);
-    
+
     if (!isStandardFormat && !isHoneypotFormat) {
       setError('Invalid access code format');
       return;
@@ -91,14 +91,14 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Generate fingerprint for honeypot tracking
       const fingerprint = await SecurityManager.generateFingerprint();
-      
+
       // Check if this is a honeypot FIRST (before validation)
       const honeypotCheck = await HoneypotService.checkSession(trimmedId, fingerprint);
-      
+
       if (honeypotCheck.isHoneypot) {
         // Route to honeypot interface - attacker doesn't know
         if (onHoneypotDetected) {
@@ -124,8 +124,8 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
 
   return (
     <div className="min-h-screen min-h-[100dvh] pt-20 pb-8 md:pt-24 md:pb-12 flex items-center justify-center px-4 safe-area-inset-top relative overflow-hidden">
-      {/* Cinematic particle background */}
-      <ParticleField />
+      {/* 3D Falcon Eye Background */}
+      <FalconEye className="absolute inset-0 z-0 opacity-60" />
       <div className="w-full max-w-xl mx-auto relative z-10">
         {/* Cinematic Header */}
         <div className="text-center mb-6 md:mb-8">
@@ -185,7 +185,7 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
                       <span>{error}</span>
                     </div>
                   )}
-                  
+
                   {/* Create Button */}
                   <button
                     onClick={handleCreateSession}
@@ -218,7 +218,7 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
                     <p className="text-muted-foreground mb-4 md:mb-6 text-sm md:text-base">
                       Transmit this access code via secure channel only
                     </p>
-                    
+
                     {/* ID Box - Cinematic glowing border */}
                     <div className="relative p-4 md:p-6 rounded-xl bg-background/80 border-2 border-primary/50 mb-4 md:mb-6 shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)] backdrop-blur-sm">
                       <div className="font-mono text-xl md:text-2xl lg:text-3xl font-bold text-primary tracking-[0.2em] ghost-id-display pr-10">
