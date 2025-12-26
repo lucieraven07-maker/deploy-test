@@ -287,6 +287,10 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
                   onChange={(e) => { setJoinId(e.target.value.toUpperCase()); setError(null); }}
                   placeholder="GHOST-XXXX-XXXX"
                   className="w-full p-4 rounded-xl bg-background/80 border-2 border-border/50 focus:border-primary focus:outline-none focus:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] font-mono text-base md:text-lg text-center tracking-[0.15em] placeholder:text-muted-foreground/50 transition-all"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
                 />
               </div>
 

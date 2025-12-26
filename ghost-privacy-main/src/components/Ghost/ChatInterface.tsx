@@ -44,7 +44,7 @@ interface VoiceMessageData {
 const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInterfaceProps) => {
   const navigate = useNavigate();
   const { fullCleanup } = useMemoryCleanup();
-  
+
   const [messages, setMessages] = useState<QueuedMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [isPartnerConnected, setIsPartnerConnected] = useState(false);
@@ -62,7 +62,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
   const [isWindowVisible, setIsWindowVisible] = useState(true);
   const [showTimestampSettings, setShowTimestampSettings] = useState(false);
   const sessionKeyRef = useRef<CryptoKey | null>(null);
-  
+
   const realtimeManagerRef = useRef<RealtimeManager | null>(null);
   const encryptionEngineRef = useRef<EncryptionEngine | null>(null);
   const keyPairRef = useRef<CryptoKeyPair | null>(null);
@@ -89,7 +89,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
   useEffect(() => {
     initializeSession();
-    
+
     return () => {
       cleanup();
     };
@@ -155,24 +155,24 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
   const initializeSession = async () => {
     try {
       setConnectionState({ status: 'validating', progress: 10 });
-      
+
       participantIdRef.current = await SecurityManager.generateFingerprint();
       encryptionEngineRef.current = new EncryptionEngine();
-      
+
       setConnectionState({ status: 'connecting', progress: 30 });
-      
+
       keyPairRef.current = await KeyExchange.generateKeyPair();
       realtimeManagerRef.current = new RealtimeManager(sessionId, participantIdRef.current);
-      
+
       setupMessageHandlers();
-      
+
       setConnectionState({ status: 'subscribing', progress: 60 });
-      
+
       await realtimeManagerRef.current.connect();
       await SessionService.extendSession(sessionId);
-      
+
       addSystemMessage('🔐 Secure connection established');
-      
+
     } catch {
       setConnectionState({ status: 'error', progress: 0, error: 'Connection failed' });
       toast.error('Failed to connect to session');
@@ -195,7 +195,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
       const partnerCount = participants.filter(id => id !== participantIdRef.current).length;
       const hasPartner = partnerCount > 0;
       setIsPartnerConnected(hasPartner);
-      
+
       // CRITICAL: If partner was connected and now left, terminate the session for remaining user
       if (partnerWasPresentRef.current && partnerCount === 0 && !isTerminatingRef.current) {
         partnerWasPresentRef.current = false;
@@ -209,7 +209,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
         }, 1500);
         return;
       }
-      
+
       if (hasPartner) {
         partnerWasPresentRef.current = true;
         if (!isKeyExchangeComplete) {
@@ -222,19 +222,19 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
       try {
         const partnerPublicKey = await KeyExchange.importPublicKey(payload.data.publicKey);
         partnerPublicKeyRef.current = partnerPublicKey;
-        
+
         if (keyPairRef.current) {
           const sharedSecret = await KeyExchange.deriveSharedSecret(
             keyPairRef.current.privateKey,
             partnerPublicKey
           );
-          
+
           sessionKeyRef.current = sharedSecret;
           await encryptionEngineRef.current?.setKey(sharedSecret);
           setIsKeyExchangeComplete(true);
-          
+
           const remoteFingerprint = await KeyExchange.generateFingerprint(partnerPublicKey);
-          
+
           // Only show verification modal ONCE per session
           if (!verificationShownRef.current) {
             verificationShownRef.current = true;
@@ -245,7 +245,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
               remoteFingerprint
             }));
           }
-          
+
           addSystemMessage('🔐 Encryption established - verify security codes');
         }
       } catch {
@@ -273,7 +273,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
         syncMessagesFromQueue();
         await manager.send('message-ack', { messageId: payload.nonce });
-        
+
       } catch {
         // Silent - message decryption failed
       }
@@ -287,7 +287,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
           payload.data.encrypted,
           payload.data.iv
         );
-        
+
         const binaryString = atob(decrypted);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
@@ -318,7 +318,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
         // Silent
       }
     });
-    
+
     manager.onMessage('message-ack', (payload) => {
       messageQueueRef.current.acknowledgeMessage(sessionId, payload.data.messageId);
     });
@@ -337,7 +337,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
     heartbeatIntervalRef.current = setInterval(() => {
       if (!realtimeManagerRef.current) return;
-      
+
       const channel = (realtimeManagerRef.current as any).channel;
       if (channel && channel.state !== 'joined') {
         if (heartbeatIntervalRef.current) {
@@ -350,7 +350,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
   const sendPublicKey = async () => {
     if (!realtimeManagerRef.current || !keyPairRef.current) return;
-    
+
     localFingerprintRef.current = await KeyExchange.generateFingerprint(keyPairRef.current.publicKey);
     const publicKeyExport = await KeyExchange.exportPublicKey(keyPairRef.current.publicKey);
     await realtimeManagerRef.current.send('key-exchange', { publicKey: publicKeyExport });
@@ -392,7 +392,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
     try {
       const messageId = generateNonce();
-      
+
       const arrayBuffer = await blob.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
       let binary = '';
@@ -437,7 +437,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
   };
 
   const handleVoiceMessagePlayed = (messageId: string) => {
-    setVoiceMessages(prev => 
+    setVoiceMessages(prev =>
       prev.map(vm => vm.id === messageId ? { ...vm, played: true } : vm)
     );
   };
@@ -460,7 +460,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
       receivedAt: Date.now(),
       acknowledged: true
     };
-    
+
     messageQueueRef.current.addMessage(sessionId, systemMessage);
     syncMessagesFromQueue();
   };
@@ -488,9 +488,9 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
     try {
       const messageId = generateNonce();
       const { encrypted, iv } = await encryptionEngineRef.current.encryptMessage(inputText.trim());
-      
+
       const { displayTimestamp } = generatePlausibleTimestamp();
-      
+
       messageQueueRef.current.addMessage(sessionId, {
         id: messageId,
         content: inputText.trim(),
@@ -545,17 +545,17 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
     }
 
     const reader = new FileReader();
-    
+
     reader.onload = async (e) => {
       try {
         const base64 = e.target?.result as string;
         const sanitizedName = sanitizeFileName(file.name);
         const messageId = generateNonce();
-        
+
         const { displayTimestamp } = generatePlausibleTimestamp();
-        
+
         const { encrypted, iv } = await encryptionEngineRef.current!.encryptMessage(base64);
-        
+
         messageQueueRef.current.addMessage(sessionId, {
           id: messageId,
           content: base64,
@@ -650,10 +650,10 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
     if (heartbeatIntervalRef.current) {
       clearInterval(heartbeatIntervalRef.current);
     }
-    
+
     await realtimeManagerRef.current?.disconnect();
     messageQueueRef.current.destroySession(sessionId);
-    
+
     encryptionEngineRef.current = null;
     keyPairRef.current = null;
     partnerPublicKeyRef.current = null;
@@ -672,7 +672,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
       return;
     }
     lastTerminationRef.current = now;
-    
+
     // Mark as terminating immediately
     if (isTerminatingRef.current) {
       return;
@@ -724,9 +724,9 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
         onCancel={handleVerificationCancelled}
         isVisible={verificationState.show}
       />
-      
+
       <div className="chat-container-mobile h-[100dvh] flex flex-col bg-background">
-        
+
         {isPartnerConnected && verificationState.verified && (
           <div className="fixed top-0 left-0 right-0 z-[60] secure-line-banner md:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
             🔒 SECURE LINE ACTIVE
@@ -803,8 +803,8 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
         <div className={cn(
           "flex-shrink-0",
-          isPartnerConnected && verificationState.verified 
-            ? "h-[calc(56px+28px+env(safe-area-inset-top,0px))] md:h-16" 
+          isPartnerConnected && verificationState.verified
+            ? "h-[calc(56px+28px+env(safe-area-inset-top,0px))] md:h-16"
             : "h-[calc(56px+env(safe-area-inset-top,0px))] md:h-16"
         )} />
 
@@ -814,7 +814,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
             isPartnerConnected && verificationState.verified ? "top-[calc(1.75rem+3.5rem)] md:top-16" : "top-14 md:top-16"
           )}>
             <div className="h-1 bg-secondary">
-              <div 
+              <div
                 className="h-full bg-primary transition-all duration-300"
                 style={{ width: `${connectionState.progress}%` }}
               />
@@ -822,7 +822,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
           </div>
         )}
 
-        <main 
+        <main
           ref={messageAreaRef}
           className="mobile-message-area flex-1 overflow-y-auto overflow-x-hidden"
         >
@@ -841,7 +841,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
                 !isWindowVisible && "message-blur"
               )}>
                 {messages.map((message) => {
-                  const voiceMessage = message.type === 'voice' 
+                  const voiceMessage = message.type === 'voice'
                     ? voiceMessages.find(vm => vm.id === message.id)
                     : null;
 
@@ -905,14 +905,14 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
                                 )}
                               </div>
                             ) : (
-                              <FilePreviewCard 
-                                fileName={message.fileName || 'Unknown File'} 
+                              <FilePreviewCard
+                                fileName={message.fileName || 'Unknown File'}
                                 content={message.content}
                                 sender={message.sender}
                               />
                             )
                           ) : message.content.startsWith('http://') || message.content.startsWith('https://') ? (
-                            <FilePreviewCard 
+                            <FilePreviewCard
                               fileName={message.content}
                               content={message.content}
                               sender={message.sender}
@@ -937,7 +937,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
           </div>
         </main>
 
-        <footer 
+        <footer
           ref={inputBarRef}
           className="mobile-input-bar"
         >
@@ -963,7 +963,7 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
                   disabled={!isKeyExchangeComplete}
                   rows={1}
                   className="mobile-text-input flex-1"
-                  style={{ 
+                  style={{
                     fontSize: '16px',
                     minHeight: '44px',
                     paddingTop: '10px',
@@ -971,8 +971,12 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
                     paddingLeft: '16px',
                     paddingRight: '16px'
                   }}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="true"
                 />
-                
+
                 <button
                   onClick={sendMessage}
                   disabled={!inputText.trim() || !isKeyExchangeComplete}
