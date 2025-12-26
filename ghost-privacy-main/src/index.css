@@ -615,6 +615,103 @@
     gap: 8px;
   }
 
+  /* ========================================
+     NEXT-GEN "HIGH CLASSIFIED" HUD THEME
+     ======================================== */
+
+  /* Tech Borders (Corner Brackets) */
+  .tech-border {
+    position: relative;
+    border: 1px solid hsl(var(--border) / 0.3);
+    background: hsl(var(--background) / 0.8);
+  }
+
+  .tech-border::before,
+  .tech-border::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid hsl(var(--primary));
+    transition: all 0.3s ease;
+  }
+
+  .tech-border::before {
+    top: -1px;
+    left: -1px;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .tech-border::after {
+    bottom: -1px;
+    right: -1px;
+    border-left: none;
+    border-top: none;
+  }
+
+  .tech-border:hover::before,
+  .tech-border:hover::after {
+    width: 20px;
+    height: 20px;
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.5);
+  }
+
+  /* Cyber Button */
+  .cyber-button {
+    position: relative;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid hsl(var(--primary));
+    color: hsl(var(--primary));
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+
+  .cyber-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .cyber-button:hover {
+    background: hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+    text-shadow: 0 0 8px hsl(var(--primary));
+  }
+
+  .cyber-button:hover::before {
+    left: 100%;
+  }
+
+  .cyber-button:active {
+    transform: scale(0.98);
+  }
+
+  /* HUD Panel */
+  .hud-panel {
+    background: linear-gradient(135deg, hsl(240 10% 4% / 0.9) 0%, hsl(240 10% 6% / 0.95) 100%);
+    border: 1px solid hsl(var(--border) / 0.5);
+    box-shadow: inset 0 0 30px hsl(0 0% 0% / 0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  .hud-text {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
   /* Voice recorder container - overlay input bar when active */
   .voice-recorder-fixed {
     position: fixed;

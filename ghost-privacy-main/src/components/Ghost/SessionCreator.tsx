@@ -123,204 +123,195 @@ const SessionCreator = ({ onSessionStart, onHoneypotDetected }: SessionCreatorPr
   };
 
   return (
-    <div className="min-h-screen min-h-[100dvh] pt-20 pb-8 md:pt-24 md:pb-12 flex items-center justify-center px-4 safe-area-inset-top relative overflow-hidden">
+    <div className="min-h-screen min-h-[100dvh] pt-20 pb-8 md:pt-24 md:pb-12 flex items-center justify-center px-4 safe-area-inset-top relative overflow-hidden bg-black">
       {/* 3D Falcon Eye Background */}
-      <FalconEye className="absolute inset-0 z-0 opacity-60" />
-      <div className="w-full max-w-xl mx-auto relative z-10">
+      <FalconEye className="absolute inset-0 z-0 opacity-80" />
+
+      {/* HUD Grid Overlay */}
+      <div className="absolute inset-0 z-0 pointer-events-none bg-[url('/grid.svg')] opacity-10" style={{ backgroundSize: '40px 40px' }} />
+      <div className="absolute inset-0 z-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-black/90" />
+
+      <div className="w-full max-w-xl mx-auto relative z-10 animate-fade-in-up">
         {/* Cinematic Header */}
-        <div className="text-center mb-6 md:mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-mono uppercase tracking-wider mb-4">
-            <Lock className="h-3 w-3" />
-            Zero-Knowledge Protocol
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-3 px-4 py-2 mb-6 border border-primary/30 bg-primary/5 rounded-none tech-border">
+            <Lock className="h-4 w-4 text-primary animate-pulse" />
+            <span className="text-xs font-mono text-primary tracking-[0.2em] uppercase">Secure Terminal // v3.0</span>
           </div>
-          <h1 className="font-outfit font-bold text-2xl md:text-3xl lg:text-4xl text-foreground mb-2">
-            Initiate Secure Channel
+
+          <h1 className="font-outfit font-black text-4xl md:text-5xl lg:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50 mb-4 tracking-tighter">
+            GHOST
           </h1>
-          <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto">
-            End-to-end encrypted. RAM-only. No logs. No trace.
+          <p className="font-mono text-primary/70 text-xs md:text-sm tracking-widest uppercase">
+            Military-Grade Ephemeral Communication
           </p>
         </div>
 
         {/* Mode Toggle */}
-        <div className="flex p-1 rounded-xl bg-secondary/50 backdrop-blur-sm mb-6 md:mb-8 border border-border/30">
+        <div className="flex p-1 mb-8 gap-2">
           <button
             onClick={() => { setMode('create'); setIsWaiting(false); setGhostId(''); }}
             className={cn(
-              "flex-1 py-3 px-4 rounded-lg font-outfit font-semibold transition-all duration-200 touch-target",
-              mode === 'create' ? "bg-primary text-primary-foreground shadow-glow-sm" : "text-muted-foreground hover:text-foreground active:text-foreground"
+              "flex-1 py-3 px-4 text-sm font-mono tracking-wider transition-all duration-300 border",
+              mode === 'create'
+                ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_hsl(var(--primary)/0.3)]"
+                : "bg-transparent border-transparent text-muted-foreground hover:text-white hover:border-white/20"
             )}
+            style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
           >
-            Create Channel
+            INITIALIZE
           </button>
           <button
             onClick={() => { setMode('join'); setIsWaiting(false); setGhostId(''); }}
             className={cn(
-              "flex-1 py-3 px-4 rounded-lg font-outfit font-semibold transition-all duration-200 touch-target",
-              mode === 'join' ? "bg-primary text-primary-foreground shadow-glow-sm" : "text-muted-foreground hover:text-foreground active:text-foreground"
+              "flex-1 py-3 px-4 text-sm font-mono tracking-wider transition-all duration-300 border",
+              mode === 'join'
+                ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_hsl(var(--primary)/0.3)]"
+                : "bg-transparent border-transparent text-muted-foreground hover:text-white hover:border-white/20"
             )}
+            style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
           >
-            Join Channel
+            CONNECT
           </button>
         </div>
 
-        {/* Main Card */}
-        <div className="p-5 md:p-8 rounded-2xl glass border border-border/50 session-creator-mobile backdrop-blur-md">
-          {mode === 'create' ? (
-            <>
-              {!isWaiting ? (
+        {/* Main Terminal Card */}
+        <div className="p-1 rounded-none bg-gradient-to-b from-primary/20 to-transparent">
+          <div className="p-8 bg-black/80 backdrop-blur-xl border border-primary/20 tech-border relative overflow-hidden">
+            {/* Corner Markers */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-primary" />
+            <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-primary" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-primary" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-primary" />
+
+            {/* Scanline overlay */}
+            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 bg-[length:100%_4px,3px_100%] opacity-20" />
+
+            <div className="relative z-10">
+              {mode === 'create' ? (
                 <>
-                  {/* Cinematic intro text */}
-                  <div className="text-center mb-6">
-                    <Shield className="h-12 w-12 text-primary mx-auto mb-4 opacity-80" />
-                    <p className="text-muted-foreground text-sm">
-                      Generate a unique access code to share with your contact.
-                      Messages exist only in memory — vanish when you leave.
+                  {!isWaiting ? (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full border border-primary/30 flex items-center justify-center animate-pulse-ring">
+                          <Shield className="h-8 w-8 text-primary" />
+                        </div>
+                      </div>
+
+                      <div className="text-center space-y-2">
+                        <h3 className="font-mono text-lg text-white">GENERATE SECURE KEY</h3>
+                        <p className="text-muted-foreground text-xs font-mono">
+                          INITIATING ONE-TIME PAD PROTOCOL...
+                        </p>
+                      </div>
+
+                      {error && (
+                        <div className="p-3 bg-destructive/10 border border-destructive/30 text-destructive text-xs font-mono flex items-center gap-2">
+                          <AlertCircle className="h-3 w-3" />
+                          {error}
+                        </div>
+                      )}
+
+                      <button
+                        onClick={handleCreateSession}
+                        disabled={isLoading}
+                        className="cyber-button w-full flex items-center justify-center gap-2 group"
+                      >
+                        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ghost className="h-4 w-4" />}
+                        <span className="tracking-[0.2em]">{isLoading ? 'INITIALIZING...' : 'EXECUTE'}</span>
+                        <ArrowRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="text-center space-y-4">
+                        <div className="inline-block px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-500 text-xs font-mono tracking-widest animate-pulse">
+                          CHANNEL STATUS: ACTIVE
+                        </div>
+
+                        <div className="relative group">
+                          <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/30 transition-all opacity-50" />
+                          <div className="relative border-2 border-dashed border-primary/30 bg-black/50 p-6 font-mono text-2xl md:text-3xl text-primary text-center tracking-[0.2em] select-all">
+                            {ghostId}
+                          </div>
+                          <button
+                            onClick={handleCopyId}
+                            className="absolute top-2 right-2 p-2 text-primary/50 hover:text-primary transition-colors"
+                          >
+                            {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                          </button>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground font-mono animate-pulse">
+                          WAITING FOR PEER CONNECTION...
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={handleStartSession}
+                        className="cyber-button w-full"
+                      >
+                        ENTER CHANNEL
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-6">
+                  <div className="text-center space-y-2">
+                    <h3 className="font-mono text-lg text-white">ACCESS SECURE CHANNEL</h3>
+                    <p className="text-muted-foreground text-xs font-mono">
+                      ENTER AUTHORIZATION CODE
                     </p>
                   </div>
 
-                  {/* Error display */}
                   {error && (
-                    <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30 flex items-center gap-2 text-sm text-destructive">
-                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                      <span>{error}</span>
+                    <div className="p-3 bg-destructive/10 border border-destructive/30 text-destructive text-xs font-mono flex items-center gap-2">
+                      <AlertCircle className="h-3 w-3" />
+                      {error}
                     </div>
                   )}
 
-                  {/* Create Button */}
+                  <input
+                    type="text"
+                    value={joinId}
+                    onChange={(e) => { setJoinId(e.target.value.toUpperCase()); setError(null); }}
+                    placeholder="GHOST-XXXX-XXXX"
+                    className="w-full bg-black/50 border border-primary/30 p-4 text-center font-mono text-xl text-primary placeholder:text-primary/20 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                  />
+
                   <button
-                    onClick={handleCreateSession}
-                    disabled={isLoading}
-                    className="w-full flex items-center justify-center gap-3 py-4 bg-primary text-primary-foreground font-outfit font-bold text-base md:text-lg rounded-xl transition-all duration-300 hover:shadow-glow-md active:scale-[0.98] disabled:opacity-50 min-h-[52px] touch-target"
+                    onClick={handleJoinSession}
+                    disabled={isLoading || !joinId.trim()}
+                    className="cyber-button w-full flex items-center justify-center gap-2"
                   >
-                    {isLoading ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : error ? (
-                      <>
-                        <Ghost className="h-5 w-5" />
-                        Retry
-                      </>
-                    ) : (
-                      <>
-                        <Ghost className="h-5 w-5" />
-                        Initialize Secure Channel
-                      </>
-                    )}
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
+                    <span className="tracking-[0.2em]">CONNECT</span>
                   </button>
-                </>
-              ) : (
-                <>
-                  {/* Ghost ID Display */}
-                  <div className="text-center mb-6 md:mb-8">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/20 text-accent text-sm font-medium mb-4 animate-pulse">
-                      <div className="w-2 h-2 bg-accent rounded-full" />
-                      CHANNEL ACTIVE
-                    </div>
-                    <p className="text-muted-foreground mb-4 md:mb-6 text-sm md:text-base">
-                      Transmit this access code via secure channel only
-                    </p>
-
-                    {/* ID Box - Cinematic glowing border */}
-                    <div className="relative p-4 md:p-6 rounded-xl bg-background/80 border-2 border-primary/50 mb-4 md:mb-6 shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)] backdrop-blur-sm">
-                      <div className="font-mono text-xl md:text-2xl lg:text-3xl font-bold text-primary tracking-[0.2em] ghost-id-display pr-10">
-                        {ghostId}
-                      </div>
-                      <button
-                        onClick={handleCopyId}
-                        className="absolute top-3 right-3 md:top-4 md:right-4 p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors touch-target"
-                      >
-                        {isCopied ? (
-                          <Check className="h-5 w-5 text-accent" />
-                        ) : (
-                          <Copy className="h-5 w-5 text-muted-foreground" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Waiting indicator */}
-                    <div className="flex items-center justify-center gap-2 text-muted-foreground mb-6 md:mb-8 text-sm">
-                      <div className="flex gap-1">
-                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                      <span>Awaiting connection...</span>
-                    </div>
-                  </div>
-
-                  {/* Start Button */}
-                  <button
-                    onClick={handleStartSession}
-                    className="w-full flex items-center justify-center gap-3 py-4 bg-primary text-primary-foreground font-outfit font-bold text-base md:text-lg rounded-xl transition-all duration-300 hover:shadow-glow-md active:scale-[0.98] min-h-[52px] touch-target"
-                  >
-                    Enter Secure Channel
-                    <ArrowRight className="h-5 w-5" />
-                  </button>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Join Session */}
-              <div className="text-center mb-6 md:mb-8">
-                <Ghost className="h-10 w-10 md:h-12 md:w-12 text-primary mx-auto mb-4" />
-                <h2 className="font-outfit font-bold text-xl md:text-2xl text-foreground mb-2">
-                  Connect to Secure Channel
-                </h2>
-                <p className="text-muted-foreground text-sm md:text-base">
-                  Enter the access code transmitted by your contact
-                </p>
-              </div>
-
-              {/* Error display */}
-              {error && (
-                <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30 flex items-center gap-2 text-sm text-destructive">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>{error}</span>
                 </div>
               )}
-
-              {/* Input with glowing focus */}
-              <div className="mb-4 md:mb-6">
-                <input
-                  type="text"
-                  value={joinId}
-                  onChange={(e) => { setJoinId(e.target.value.toUpperCase()); setError(null); }}
-                  placeholder="GHOST-XXXX-XXXX"
-                  className="w-full p-4 rounded-xl bg-background/80 border-2 border-border/50 focus:border-primary focus:outline-none focus:shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] font-mono text-base md:text-lg text-center tracking-[0.15em] placeholder:text-muted-foreground/50 transition-all"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="false"
-                />
-              </div>
-
-              {/* Join Button */}
-              <button
-                onClick={handleJoinSession}
-                disabled={isLoading || !joinId.trim()}
-                className="w-full flex items-center justify-center gap-3 py-4 bg-primary text-primary-foreground font-outfit font-bold text-base md:text-lg rounded-xl transition-all duration-300 hover:shadow-glow-md active:scale-[0.98] disabled:opacity-50 min-h-[52px] touch-target"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <>
-                    <Shield className="h-5 w-5" />
-                    Establish Connection
-                  </>
-                )}
-              </button>
-            </>
-          )}
+            </div>
+          </div>
         </div>
 
-        {/* Security Note - Cinematic */}
-        <div className="text-center mt-4 md:mt-6 px-2 space-y-2">
-          <p className="text-xs text-muted-foreground/60 font-mono uppercase tracking-wider">
-            Zero-knowledge • RAM-only • Ephemeral by design
-          </p>
-          <p className="text-[10px] text-muted-foreground/40">
-            Messages exist only in memory. No server logs. No persistence. No trace.
-          </p>
+        {/* Security Footer */}
+        <div className="mt-8 flex justify-between items-end px-4 font-mono text-[10px] text-primary/40 uppercase">
+          <div>
+            <p>RAM: SECURE</p>
+            <p>DISK: NULL</p>
+            <p>NET: ENCRYPTED</p>
+          </div>
+          <div className="text-right">
+            <div className="flex items-center gap-2 justify-end">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+              SYSTEM ONLINE
+            </div>
+            <p>V 3.0.1 BUILD 2025</p>
+          </div>
         </div>
       </div>
     </div>

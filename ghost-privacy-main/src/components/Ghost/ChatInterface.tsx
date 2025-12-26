@@ -711,74 +711,66 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
   const formatBytes = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
+    return (
   return (
-    <>
-      <KeyVerificationModal
-        localFingerprint={verificationState.localFingerprint}
-        remoteFingerprint={verificationState.remoteFingerprint}
-        onVerified={handleVerificationConfirmed}
-        onCancel={handleVerificationCancelled}
-        isVisible={verificationState.show}
-      />
+      <>
+        <KeyVerificationModal
+          localFingerprint={verificationState.localFingerprint}
+          remoteFingerprint={verificationState.remoteFingerprint}
+          onVerified={handleVerificationConfirmed}
+          onCancel={handleVerificationCancelled}
+          isVisible={verificationState.show}
+        />
 
-      <div className="chat-container-mobile h-[100dvh] flex flex-col bg-background">
+        <div className="chat-container-mobile h-[100dvh] flex flex-col bg-black overflow-hidden font-mono">
 
-        {isPartnerConnected && verificationState.verified && (
-          <div className="fixed top-0 left-0 right-0 z-[60] secure-line-banner md:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-            🔒 SECURE LINE ACTIVE
-          </div>
-        )}
+          {/* HUD Overlay Grid */}
+          <div className="absolute inset-0 z-0 pointer-events-none bg-[url('/grid.svg')] opacity-5" style={{ backgroundSize: '20px 20px' }} />
+          <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary/30 z-50 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary/30 z-50 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary/30 z-50 pointer-events-none" />
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary/30 z-50 pointer-events-none" />
 
-        <header className={cn(
-          "mobile-header fixed left-0 right-0 z-50 glass border-b border-border/30 h-14 md:h-16",
-          isPartnerConnected && verificationState.verified ? "top-[calc(28px+env(safe-area-inset-top,0px))] md:top-0" : "top-[env(safe-area-inset-top,0px)] md:top-0"
-        )}>
-          <div className="container mx-auto px-2 md:px-4 h-full flex items-center">
-            <div className="flex items-center justify-between w-full gap-2">
-              <div className="flex items-center gap-1.5 md:gap-3 flex-1 min-w-0">
-                <Ghost className="h-5 w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
-                <div className="min-w-0 flex-1">
+          {isPartnerConnected && verificationState.verified && (
+            <div className="fixed top-0 left-0 right-0 z-[60] bg-green-500/10 border-b border-green-500/30 text-green-500 text-[10px] font-mono text-center tracking-widest py-1 animate-pulse md:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+              [ SECURE LINE ACTIVE ]
+            </div>
+          )}
+
+          <header className={cn(
+            "mobile-header fixed left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-primary/20 h-14 md:h-16 flex items-center",
+            isPartnerConnected && verificationState.verified ? "top-[calc(24px+env(safe-area-inset-top,0px))] md:top-0" : "top-[env(safe-area-inset-top,0px))] md:top-0"
+          )}>
+            <div className="container mx-auto px-2 md:px-4 flex items-center justify-between w-full h-full">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 border border-primary/50 flex items-center justify-center bg-primary/10">
+                  <Ghost className="h-4 w-4 text-primary" />
+                </div>
+                <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] md:text-xs text-primary truncate">{sessionId}</span>
-                    <div className="md:hidden flex-shrink-0">
-                      <div className={cn(
-                        "mobile-connection-badge text-[9px] px-1.5 py-0.5",
-                        isPartnerConnected ? "bg-accent/20 text-accent" : "bg-yellow-500/20 text-yellow-500"
-                      )}>
-                        <div className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          isPartnerConnected ? "bg-accent animate-pulse" : "bg-yellow-500"
-                        )} />
-                        {isPartnerConnected ? "Live" : "Wait"}
-                      </div>
-                    </div>
+                    <span className="text-[10px] text-primary/60 tracking-widest">SESSION ID:</span>
+                    <span className="text-xs text-primary font-bold">{sessionId}</span>
                   </div>
-                  <div className="flex items-center gap-1 md:gap-2 text-[9px] md:text-xs text-muted-foreground">
-                    <Shield className="h-2.5 w-2.5 md:h-3 md:w-3 flex-shrink-0" />
-                    <span className="truncate">{isKeyExchangeComplete ? 'E2E Encrypted' : 'Connecting...'}</span>
+                  <div className="flex items-center gap-2 text-[10px]">
+                    <span className={cn("w-1.5 h-1.5 rounded-full", isKeyExchangeComplete ? "bg-green-500 shadow-glow-green" : "bg-yellow-500 animate-pulse")} />
+                    <span className={isKeyExchangeComplete ? "text-green-500" : "text-yellow-500"}>
+                      {isKeyExchangeComplete ? "ENCRYPTION: AES-256" : "HANDSHAKE..."}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="hidden md:flex items-center gap-2">
-                <ConnectionStatusIndicator state={connectionState} isPartnerConnected={isPartnerConnected} />
-              </div>
-
-              <div className="flex items-center gap-0.5 md:gap-2 flex-shrink-0">
-                <div className="hidden lg:flex items-center gap-1 px-2 py-1 rounded bg-secondary/50 text-xs text-muted-foreground">
-                  <HardDrive className="h-3 w-3" />
-                  <span>{memoryStats.messageCount} msgs</span>
-                  <span className="text-muted-foreground/50">|</span>
-                  <span>{formatBytes(memoryStats.estimatedBytes)}</span>
+              <div className="flex items-center gap-2">
+                <div className="hidden md:flex flex-col items-end text-[10px] text-primary/40 leading-tight">
+                  <span>MEM_USAGE: {formatBytes(memoryStats.estimatedBytes)}</span>
+                  <span>BUFFER_COUNT: {memoryStats.messageCount}</span>
                 </div>
+
+                <div className="h-8 w-[1px] bg-primary/20 mx-2" />
 
                 <button
                   onClick={handleNuclearPurge}
-                  className="touch-target flex items-center justify-center p-1.5 md:p-2 md:px-3 rounded-lg border border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10 transition-colors"
+                  className="p-2 border border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 transition-colors"
                   title="Purge messages"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -786,58 +778,45 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
 
                 <button
                   onClick={handleEndSession}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
-                    handleEndSession();
-                  }}
-                  className="touch-target relative z-[100] flex items-center justify-center p-1.5 md:p-2 md:px-4 rounded-lg border border-destructive/50 text-destructive hover:bg-destructive/10 active:bg-destructive/20 active:scale-95 transition-all cursor-pointer"
-                  style={{ pointerEvents: 'auto' }}
-                  aria-label="End session"
+                  className="p-2 border border-destructive/50 text-destructive bg-destructive/10 hover:bg-destructive/20 transition-colors"
+                  title="Terminate Session"
                 >
-                  <X className="h-4 w-4 pointer-events-none" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <div className={cn(
-          "flex-shrink-0",
-          isPartnerConnected && verificationState.verified
-            ? "h-[calc(56px+28px+env(safe-area-inset-top,0px))] md:h-16"
-            : "h-[calc(56px+env(safe-area-inset-top,0px))] md:h-16"
-        )} />
-
-        {connectionState.status !== 'connected' && connectionState.progress > 0 && (
           <div className={cn(
-            "fixed left-0 right-0 z-40",
-            isPartnerConnected && verificationState.verified ? "top-[calc(1.75rem+3.5rem)] md:top-16" : "top-14 md:top-16"
-          )}>
-            <div className="h-1 bg-secondary">
+            "flex-shrink-0",
+            isPartnerConnected && verificationState.verified
+              ? "h-[calc(56px+24px+env(safe-area-inset-top,0px))] md:h-16"
+              : "h-[calc(56px+env(safe-area-inset-top,0px))] md:h-16"
+          )} />
+
+          {/* Connection Progress Bar */}
+          {connectionState.status !== 'connected' && connectionState.progress > 0 && (
+            <div className="fixed top-0 left-0 right-0 z-40 h-[2px] bg-primary/10">
               <div
-                className="h-full bg-primary transition-all duration-300"
+                className="h-full bg-primary shadow-glow-lg transition-all duration-300"
                 style={{ width: `${connectionState.progress}%` }}
               />
             </div>
-          </div>
-        )}
+          )}
 
-        <main
-          ref={messageAreaRef}
-          className="mobile-message-area flex-1 overflow-y-auto overflow-x-hidden"
-        >
-          <div className="container mx-auto px-3 md:px-4 py-4 md:py-6">
-            <div className="max-w-3xl mx-auto space-y-3 md:space-y-4">
-              <div className="flex justify-center">
-                <div className="px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-[10px] md:text-xs text-accent flex items-center gap-1.5">
-                  <HardDrive className="h-3 w-3" />
-                  <span className="hidden sm:inline">Messages stored in memory only - vanish when session ends</span>
-                  <span className="sm:hidden">Memory only - auto-vanish</span>
+          <main
+            ref={messageAreaRef}
+            className="mobile-message-area flex-1 overflow-y-auto overflow-x-hidden p-4 relative"
+          >
+            <div className="max-w-3xl mx-auto space-y-4">
+              <div className="flex justify-center mb-6">
+                <div className="tech-border text-[10px] text-primary/60 px-4 py-1 tracking-widest bg-black/50">
+                // MEMORY_BUFFER_INIT //
                 </div>
               </div>
 
               <div className={cn(
-                "space-y-3 md:space-y-4 transition-all duration-200",
+                "space-y-4 transition-all duration-200",
                 !isWindowVisible && "message-blur"
               )}>
                 {messages.map((message) => {
@@ -854,8 +833,8 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
                       )}
                     >
                       {message.type === 'system' ? (
-                        <div className="px-4 py-2 rounded-full bg-secondary/50 text-sm text-muted-foreground max-w-[90%] text-center">
-                          {message.content}
+                        <div className="px-4 py-1 text-[10px] text-primary/50 tracking-widest border-t border-b border-primary/10 bg-primary/5 w-full text-center">
+                        >> SYSTEM: {message.content}
                         </div>
                       ) : message.type === 'voice' && voiceMessage ? (
                         <VoiceMessage
@@ -869,62 +848,52 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
                       ) : (
                         <div
                           className={cn(
-                            "message-bubble-mobile",
-                            message.sender === 'me'
-                              ? "bg-primary text-primary-foreground rounded-2xl rounded-br-md"
-                              : "glass border border-border/50 rounded-2xl rounded-bl-md"
+                            "max-w-[85%] relative group",
+                            message.sender === 'me' ? "text-right" : "text-left"
                           )}
                         >
-                          {message.type === 'file' ? (
-                            message.content.startsWith('data:image') ? (
-                              <div className="relative group">
-                                <img
-                                  src={message.content}
-                                  alt={message.fileName || 'Shared image'}
-                                  className="max-w-full rounded-lg mb-2"
-                                  loading="lazy"
-                                  onContextMenu={(e) => e.preventDefault()}
-                                  draggable={false}
-                                />
-                                <button
-                                  onClick={() => {
-                                    const link = document.createElement('a');
-                                    link.href = message.content;
-                                    link.download = message.fileName || 'ghost_image.png';
-                                    link.click();
-                                    toast.success('Image downloaded');
-                                  }}
-                                  className="absolute top-2 right-2 p-2 rounded-full bg-black/70 backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity active:scale-95"
-                                  aria-label="Download image"
-                                  title="Download image"
-                                >
-                                  <Download className="h-4 w-4 text-white" />
-                                </button>
-                                {message.fileName && (
-                                  <span className="text-xs opacity-70">{sanitizeFileName(message.fileName)}</span>
-                                )}
-                              </div>
-                            ) : (
-                              <FilePreviewCard
-                                fileName={message.fileName || 'Unknown File'}
-                                content={message.content}
-                                sender={message.sender}
-                              />
-                            )
-                          ) : message.content.startsWith('http://') || message.content.startsWith('https://') ? (
-                            <FilePreviewCard
-                              fileName={message.content}
-                              content={message.content}
-                              sender={message.sender}
-                            />
-                          ) : (
-                            <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                          )}
                           <div className={cn(
-                            "text-xs mt-2 opacity-60",
-                            message.sender === 'me' ? "text-primary-foreground" : "text-muted-foreground"
+                            "text-[9px] text-primary/40 mb-1 tracking-widest",
+                            message.sender === 'me' ? "pr-1" : "pl-1"
                           )}>
-                            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {message.sender === 'me' ? 'TX_OUT' : 'RX_IN'} // {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </div>
+
+                          <div className={cn(
+                            "p-3 border text-sm font-mono relative",
+                            message.sender === 'me'
+                              ? "bg-primary/10 border-primary/50 text-white rounded-tl-lg rounded-bl-lg rounded-br-lg"
+                              : "bg-secondary/50 border-white/20 text-primary-foreground rounded-tr-lg rounded-br-lg rounded-bl-lg"
+                          )}>
+                            {/* Decorative corner accent */}
+                            <div className={cn(
+                              "absolute top-0 w-2 h-2 border-t border-primary/50",
+                              message.sender === 'me' ? "right-0 border-r" : "left-0 border-l"
+                            )} />
+
+                            {message.type === 'file' ? (
+                              message.content.startsWith('data:image') ? (
+                                <div className="space-y-2">
+                                  <div className="text-[10px] text-primary/60 uppercase tracking-widest border-b border-primary/20 pb-1 mb-2">
+                                    [ IMAGE_DATA_RECEIVED ]
+                                  </div>
+                                  <img
+                                    src={message.content}
+                                    alt={message.fileName || 'Shared image'}
+                                    className="max-w-full rounded border border-primary/20 opacity-90 hover:opacity-100 transition-opacity"
+                                    loading="lazy"
+                                  />
+                                </div>
+                              ) : (
+                                <FilePreviewCard
+                                  fileName={message.fileName || 'Unknown File'}
+                                  content={message.content}
+                                  sender={message.sender}
+                                />
+                              )
+                            ) : (
+                              <p className="whitespace-pre-wrap break-words">{message.content}</p>
+                            )}
                           </div>
                         </div>
                       )}
@@ -934,138 +903,126 @@ const ChatInterface = ({ sessionId, isHost, timerMode, onEndSession }: ChatInter
               </div>
               <div ref={messagesEndRef} className="h-4" />
             </div>
-          </div>
-        </main>
+          </main>
 
-        <footer
-          ref={inputBarRef}
-          className="mobile-input-bar"
-        >
-          <div className="container mx-auto">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex items-end gap-2 mb-2">
-                <textarea
-                  value={inputText}
-                  onChange={(e) => {
-                    setInputText(e.target.value);
-                    const textarea = e.target;
-                    textarea.style.height = 'auto';
-                    const newHeight = Math.min(textarea.scrollHeight, 120);
-                    textarea.style.height = `${newHeight}px`;
-                  }}
-                  onKeyDown={handleKeyDown}
-                  onFocus={() => {
-                    setTimeout(() => {
-                      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-                    }, 300);
-                  }}
-                  placeholder={isKeyExchangeComplete ? "Type your message..." : "Connecting..."}
-                  disabled={!isKeyExchangeComplete}
-                  rows={1}
-                  className="mobile-text-input flex-1"
-                  style={{
-                    fontSize: '16px',
-                    minHeight: '44px',
-                    paddingTop: '10px',
-                    paddingBottom: '10px',
-                    paddingLeft: '16px',
-                    paddingRight: '16px'
-                  }}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck="true"
-                />
+          <footer
+            ref={inputBarRef}
+            className="mobile-input-bar bg-black/90 border-t border-primary/30"
+          >
+            <div className="container mx-auto max-w-3xl">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 bg-black/50 border border-primary/30 flex items-center p-2 relative">
+                  <div className="absolute top-0 left-0 w-1 h-2 bg-primary/50" />
+                  <div className="absolute top-0 right-0 w-1 h-2 bg-primary/50" />
+                  <div className="absolute bottom-0 left-0 w-1 h-2 bg-primary/50" />
+                  <div className="absolute bottom-0 right-0 w-1 h-2 bg-primary/50" />
+
+                  <span className="text-primary/50 mr-2 animate-pulse">{'>'}</span>
+
+                  <textarea
+                    value={inputText}
+                    onChange={(e) => {
+                      setInputText(e.target.value);
+                      const textarea = e.target;
+                      textarea.style.height = 'auto';
+                      const newHeight = Math.min(textarea.scrollHeight, 100);
+                      textarea.style.height = `${newHeight}px`;
+                    }}
+                    onKeyDown={handleKeyDown}
+                    placeholder={isKeyExchangeComplete ? "ENTER COMMAND / MESSAGE..." : "AWAITING KEY EXCHANGE..."}
+                    disabled={!isKeyExchangeComplete}
+                    rows={1}
+                    className="flex-1 bg-transparent border-none focus:ring-0 text-primary placeholder:text-primary/20 text-sm font-mono resize-none"
+                    style={{ minHeight: '24px' }}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="true"
+                  />
+                </div>
 
                 <button
                   onClick={sendMessage}
                   disabled={!inputText.trim() || !isKeyExchangeComplete}
-                  className="send-button-mobile bg-primary text-primary-foreground flex-shrink-0"
+                  className="bg-primary/10 border border-primary text-primary hover:bg-primary/20 disabled:opacity-30 disabled:cursor-not-allowed p-3 transition-all"
                   aria-label="Send message"
                 >
-                  <Send className="h-5 w-5" />
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-[8px] tracking-widest mb-0.5">SEND</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
                 </button>
               </div>
 
-              <div className="flex items-center justify-center gap-3 pb-1">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.csv,.rtf,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.js,.json,.html,.css,.md,image/jpeg,image/png,image/gif,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/csv,application/rtf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/zip,application/x-rar-compressed,text/javascript,application/json,text/html,text/css,text/markdown"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
+              <div className="flex items-center gap-4 px-1">
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={!isKeyExchangeComplete}
-                  className="action-button-mobile border border-border/50 bg-secondary/30"
-                  aria-label="Attach file"
-                  title="Attach file"
+                  className="text-primary/50 hover:text-primary transition-colors text-[10px] tracking-widest flex items-center gap-1 uppercase"
                 >
-                  <Paperclip className="h-5 w-5 text-muted-foreground" />
+                  <Paperclip className="h-3 w-3" />
+                  ATTACH_DATA
                 </button>
 
                 <button
                   onClick={() => setShowTimestampSettings(true)}
-                  className={cn(
-                    "action-button-mobile border bg-secondary/30",
-                    isTimestampObfuscationEnabled() ? "border-primary/50 text-primary" : "border-border/50"
-                  )}
-                  aria-label="Timestamp settings"
-                  title="Plausible timestamps"
+                  className="text-primary/50 hover:text-primary transition-colors text-[10px] tracking-widest flex items-center gap-1 uppercase"
                 >
-                  <Clock className="h-5 w-5" />
+                  <Clock className="h-3 w-3" />
+                  TIME_OBF
                 </button>
 
-                <VoiceRecorder
-                  sessionKey={sessionKeyRef.current}
-                  onVoiceMessage={sendVoiceMessage}
-                  disabled={!isKeyExchangeComplete || !verificationState.verified}
-                  voiceVerified={voiceVerified}
-                  onRequestVerification={handleRequestVoiceVerification}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileUpload}
                 />
-              </div>
 
-              <div className="flex items-center justify-center gap-1.5 py-1.5 text-[10px] md:text-xs text-yellow-500/80">
-                <AlertTriangle className="h-3 w-3" />
-                <span>Recipient can screenshot messages</span>
+                <div className="ml-auto">
+                  <VoiceRecorder
+                    sessionKey={sessionKeyRef.current}
+                    onVoiceMessage={sendVoiceMessage}
+                    disabled={!isKeyExchangeComplete || !verificationState.verified}
+                    voiceVerified={voiceVerified}
+                    onRequestVerification={handleRequestVoiceVerification}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </footer>
-      </div>
-
-      <TimestampSettings
-        open={showTimestampSettings}
-        onClose={() => setShowTimestampSettings(false)}
-      />
-    </>
-  );
-};
-
-// Connection Status Component
-const ConnectionStatusIndicator = ({ state, isPartnerConnected }: { state: ConnectionState; isPartnerConnected: boolean }) => {
-  const getStatusInfo = () => {
-    if (state.status === 'connected' && isPartnerConnected) {
-      return { text: 'Partner Connected', color: 'text-accent', dot: 'bg-accent' };
-    }
-    if (state.status === 'connected') {
-      return { text: 'Waiting for Partner', color: 'text-yellow-500', dot: 'bg-yellow-500' };
-    }
-    if (state.status === 'error') {
-      return { text: state.error || 'Connection Error', color: 'text-destructive', dot: 'bg-destructive' };
-    }
-    return { text: 'Connecting...', color: 'text-muted-foreground', dot: 'bg-muted-foreground' };
+          </footer>
+        </div>
+        <TimestampSettings
+          open={showTimestampSettings}
+          onClose={() => setShowTimestampSettings(false)}
+        />
+      </>
+    );
   };
 
-  const { text, color, dot } = getStatusInfo();
+  // Connection Status Component
+  const ConnectionStatusIndicator = ({ state, isPartnerConnected }: { state: ConnectionState; isPartnerConnected: boolean }) => {
+    const getStatusInfo = () => {
+      if (state.status === 'connected' && isPartnerConnected) {
+        return { text: 'Partner Connected', color: 'text-accent', dot: 'bg-accent' };
+      }
+      if (state.status === 'connected') {
+        return { text: 'Waiting for Partner', color: 'text-yellow-500', dot: 'bg-yellow-500' };
+      }
+      if (state.status === 'error') {
+        return { text: state.error || 'Connection Error', color: 'text-destructive', dot: 'bg-destructive' };
+      }
+      return { text: 'Connecting...', color: 'text-muted-foreground', dot: 'bg-muted-foreground' };
+    };
 
-  return (
-    <div className={cn("flex items-center gap-2 text-xs", color)}>
-      <div className={cn("w-2 h-2 rounded-full animate-pulse", dot)} />
-      <span>{text}</span>
-    </div>
-  );
-};
+    const { text, color, dot } = getStatusInfo();
 
-export default ChatInterface;
+    return (
+      <div className={cn("flex items-center gap-2 text-xs", color)}>
+        <div className={cn("w-2 h-2 rounded-full animate-pulse", dot)} />
+        <span>{text}</span>
+      </div>
+    );
+  };
+
+  export default ChatInterface;
